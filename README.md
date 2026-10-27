@@ -1,70 +1,149 @@
-# Gestão de Demandas Internas
+# 📋 Sistema de Gestão de Demandas
 
-Solução desenvolvida para o **Desafio Técnico – Analista de Desenvolvimento Júnior**.
+Aplicação web desenvolvida como parte de um **desafio técnico para Analista de Desenvolvimento Júnior**, com o objetivo de facilitar o cadastro, a consulta e o acompanhamento de demandas internas.
 
-## Tecnologias
+O projeto prioriza **funcionalidade, validação de dados, organização do código e aplicação de regras de negócio**, com uma interface simples e objetiva.
 
-- **Python + Flask:** aplicação web, rotas e validação das informações.
-- **SQLite:** banco de dados local, criado automaticamente no primeiro uso.
-- **HTML/CSS:** formulário de cadastro, consulta de demandas e resumo visual.
+## 🚀 Funcionalidades
 
-## Como executar
+- Cadastro de demandas com título, descrição, data de solicitação, setor e status.
+- Validação dos campos obrigatórios, da data e do status informado.
+- Definição **automática da prioridade** de cada demanda.
+- Consulta das demandas cadastradas, com filtro por status.
+- Painel de indicadores com total de demandas e agrupamentos por status, setor e prioridade.
+- Persistência local dos dados usando SQLite.
+- Mensagens de sucesso e de erro após o envio do formulário.
 
-É necessário ter Python 3.10 ou superior instalado.
+## 🛠️ Tecnologias utilizadas
 
-1. Abra um terminal na pasta deste projeto.
-2. Instale a dependência:
+| Tecnologia | Utilização |
+| --- | --- |
+| Python | Lógica da aplicação e regras de negócio |
+| Flask | Rotas HTTP e processamento dos formulários |
+| SQLite | Armazenamento das demandas |
+| HTML | Estrutura da interface |
+| CSS | Estilização da interface |
+| `unittest` | Testes automatizados |
+
+## 🧠 Regras de negócio
+
+### Validação do cadastro
+
+O sistema não permite cadastrar uma demanda com campos obrigatórios vazios. Também verifica se a data está em um formato válido e se o status pertence às opções permitidas: **Pendente**, **Em andamento** ou **Concluída**.
+
+### Prioridade automática
+
+A prioridade é calculada a partir da descrição da demanda:
+
+- Se a descrição contiver **"urgente"** ou **"erro"**, a prioridade será **Alta**.
+- Caso contrário, a prioridade será **Normal**.
+
+A comparação não diferencia letras maiúsculas e minúsculas. O usuário não precisa informar a prioridade manualmente.
+
+```python
+def calcular_prioridade(descricao):
+    texto = descricao.casefold()
+    return "Alta" if "urgente" in texto or "erro" in texto else "Normal"
+```
+
+## 🏗️ Estrutura do projeto
+
+```text
+desafio_demandas/
+├── app.py                 # Rotas, validações, regras de negócio e acesso ao banco
+├── requirements.txt       # Dependências Python
+├── templates/
+│   └── index.html         # Formulário, listagem e indicadores
+├── static/
+│   └── style.css          # Estilos da interface
+├── tests/
+│   └── test_app.py        # Testes automatizados
+└── README.md              # Documentação
+```
+
+O banco `demandas.db` é gerado localmente na primeira execução da aplicação.
+
+### Organização do código
+
+O projeto adota uma organização simples por responsabilidades: a interface fica nos arquivos HTML/CSS, as rotas são tratadas pelo Flask, e funções específicas executam validações e cálculo de prioridade. O acesso ao SQLite também está implementado em `app.py`.
+
+Essa estrutura foi escolhida para atender ao escopo do desafio sem adicionar camadas ou abstrações desnecessárias.
+
+## ⚙️ Como executar
+
+**Pré-requisito:** Python instalado no computador.
+
+1. Clone o repositório e acesse a pasta do projeto:
+
+   ```bash
+   git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
+   cd SEU-REPOSITORIO
+   ```
+
+   > Substitua os valores acima pelo endereço e nome reais do seu repositório.
+
+2. Instale as dependências:
 
    ```bash
    python -m pip install -r requirements.txt
    ```
 
-3. Inicie a aplicação:
+3. Execute a aplicação:
 
    ```bash
    python app.py
    ```
 
-4. Acesse **http://127.0.0.1:5000** no navegador.
+4. Acesse no navegador:
 
-No Windows, caso `python` não seja reconhecido, experimente `py`.
+   ```text
+   http://127.0.0.1:5000
+   ```
 
-## Estrutura
+> A configuração atual utiliza o servidor de desenvolvimento do Flask, destinado ao uso local. Para publicação em produção, são necessários ajustes de segurança e implantação.
 
-```text
-app.py                Lógica, validação, rotas e persistência SQLite
-requirements.txt      Dependência Python
-README.md             Documentação
-static/style.css      Estilos da interface
-templates/index.html  Formulário, lista de demandas e painel de resumo
-tests/test_app.py     Testes da regra e do cadastro
-```
+## 🧪 Testes automatizados
 
-O arquivo `demandas.db` é criado após a primeira execução, armazenando os registros localmente.
+O projeto contém testes com `unittest` para verificar:
 
-## Regras de negócio
+- Atribuição da prioridade Alta e Normal.
+- Cadastro e consulta de demandas.
+- Rejeição de campos obrigatórios não preenchidos.
+- Rejeição de status inválido.
 
-1. Título, descrição, data de solicitação, setor e status são obrigatórios. O cadastro é recusado quando algum desses campos está vazio ou contém apenas espaços.
-2. A prioridade **não é digitada pelo usuário**: se a descrição contiver `urgente` ou `erro` (sem diferença entre maiúsculas e minúsculas), a prioridade é **Alta**; caso contrário, é **Normal**.
-3. A data precisa ser válida e o status deve ser um dos valores disponíveis: Pendente, Em andamento ou Concluída.
-4. As demandas são armazenadas no SQLite e exibidas da mais recente para a mais antiga.
-
-## Funcionalidades
-
-- Cadastro de demandas com validação no servidor e campos obrigatórios na interface.
-- Consulta das demandas cadastradas e filtro por status.
-- Resumo visual opcional com total de demandas e contagem por status, setor e prioridade.
-
-## Decisões técnicas
-
-Foi escolhida uma aplicação web simples por permitir demonstração rápida. SQLite evita configurar um servidor de banco de dados. A regra de prioridade foi isolada na função `calcular_prioridade` para facilitar manutenção e testes. Consultas SQL usam parâmetros para receber valores do usuário. A aplicação mantém o escopo enxuto, priorizando lógica, funcionalidade e organização, conforme o enunciado.
-
-## Testes
-
-Para executar os testes automatizados:
+Para executar os testes a partir da raiz do projeto:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-**Observação:** solução para execução local/demonstração técnica. Para publicação em produção, seriam necessários configuração segura da chave secreta, autenticação e configurações de servidor adequadas.
+## 📊 Indicadores
+
+O painel apresenta:
+
+- **Total de demandas:** quantidade geral cadastrada.
+- **Demandas por status:** distribuição entre os status registrados.
+- **Demandas por setor:** distribuição por área solicitante.
+- **Demandas por prioridade:** comparação entre prioridades Alta e Normal.
+
+Os indicadores são obtidos por consultas SQL com `COUNT(*)` e `GROUP BY`.
+
+## 💡 Decisões técnicas
+
+- **Flask:** framework leve para implementar uma aplicação web de pequeno porte.
+- **SQLite:** permite persistência de dados sem a necessidade de instalar um servidor de banco de dados.
+- **SQL parametrizado:** utilizado nas consultas com valores fornecidos pelo usuário, evitando concatená-los diretamente ao SQL.
+- **Funções específicas:** a validação e a definição de prioridade foram separadas em funções para facilitar testes e manutenção.
+- **Escopo objetivo:** prioridade para os requisitos do desafio, sem funcionalidades adicionais que aumentassem a complexidade.
+
+## 🔮 Possíveis melhorias
+
+- Edição e exclusão de demandas.
+- Autenticação e controle de acesso.
+- Histórico de mudanças de status.
+- Paginação e filtros adicionais.
+- Separação da persistência em um módulo próprio e migração para um banco de dados servidor, se necessário.
+
+## 📌 Contexto
+
+Projeto desenvolvido para demonstrar conhecimentos de **lógica de programação, validação de dados, regras de negócio, SQL e desenvolvimento web com Python**.
