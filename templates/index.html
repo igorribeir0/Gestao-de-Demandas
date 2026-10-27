@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gestão de Demandas | Desafio Técnico</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header class="cabecalho">
+      <div><p class="sobre">DESENVOLVIMENTO E PROCESSOS</p><h1>Gestão de demandas</h1>
+        <p class="subtitulo">Cadastre, consulte e acompanhe solicitações internas.</p></div>
+      <div class="selo">Painel de acompanhamento</div>
+    </header>
+
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% for tipo, mensagem in mensagens %}<div class="mensagem {{ tipo }}" role="alert">{{ mensagem }}</div>{% endfor %}
+    {% endwith %}
+
+    <div class="principal">
+      <section class="painel cadastro">
+        <div class="secao-titulo"><h2>Nova demanda</h2><span>Cadastro</span></div>
+        <form method="post" action="{{ url_for('cadastrar') }}">
+          <label for="titulo">Título <b>*</b></label>
+          <input id="titulo" name="titulo" type="text" maxlength="150" placeholder="Ex.: Ajuste no sistema interno" required>
+
+          <label for="descricao">Descrição <b>*</b></label>
+          <textarea id="descricao" name="descricao" rows="4" placeholder="Descreva a solicitação" required></textarea>
+          <p class="dica">Prioridade calculada automaticamente: descrições com “urgente” ou “erro” recebem prioridade Alta.</p>
+
+          <label for="data_solicitacao">Data de solicitação <b>*</b></label>
+          <input id="data_solicitacao" name="data_solicitacao" type="date" value="{{ data_hoje }}" required>
+
+          <label for="setor">Setor <b>*</b></label>
+          <input id="setor" name="setor" type="text" maxlength="100" placeholder="Ex.: Financeiro" required>
+
+          <label for="status">Status <b>*</b></label>
+          <select id="status" name="status" required>
+            {% for status in status_permitidos %}<option value="{{ status }}">{{ status }}</option>{% endfor %}
+          </select>
+          <button type="submit">Cadastrar demanda <span aria-hidden="true">→</span></button>
+        </form>
+      </section>
+
+      <section class="resultados">
+        <div class="painel resumo">
+          <div class="secao-titulo"><h2>Resumo das demandas</h2><span>Visão geral</span></div>
+          <div class="total"><span>Total de demandas</span><strong>{{ total }}</strong></div>
+          <div class="resumo-grid">
+            <div><h3>Por status</h3>{% for item in por_status %}<p><span>{{ item.nome }}</span><strong>{{ item.quantidade }}</strong></p>{% else %}<small>Sem dados</small>{% endfor %}</div>
+            <div><h3>Por prioridade</h3>{% for item in por_prioridade %}<p><span>{{ item.nome }}</span><strong>{{ item.quantidade }}</strong></p>{% else %}<small>Sem dados</small>{% endfor %}</div>
+            <div><h3>Por setor</h3>{% for item in por_setor %}<p><span>{{ item.nome }}</span><strong>{{ item.quantidade }}</strong></p>{% else %}<small>Sem dados</small>{% endfor %}</div>
+          </div>
+        </div>
+        <div class="painel consulta">
+          <div class="secao-titulo"><h2>Demandas cadastradas</h2><span>Consulta</span></div>
+          <form class="filtro" method="get" action="{{ url_for('inicio') }}">
+            <label for="filtro-status">Filtrar por status</label>
+            <select id="filtro-status" name="status"><option value="">Todos</option>
+              {% for status in status_permitidos %}<option value="{{ status }}" {% if filtro_status == status %}selected{% endif %}>{{ status }}</option>{% endfor %}
+            </select><button type="submit">Filtrar</button>
+          </form>
+          <div class="tabela-scroll"><table>
+            <thead><tr><th>ID</th><th>Título / Descrição</th><th>Data</th><th>Setor</th><th>Status</th><th>Prioridade</th></tr></thead>
+            <tbody>{% for demanda in demandas %}<tr>
+              <td>#{{ demanda.id }}</td>
+              <td><strong>{{ demanda.titulo }}</strong><small>{{ demanda.descricao }}</small></td>
+              <td>{{ demanda.data_solicitacao[8:10] }}/{{ demanda.data_solicitacao[5:7] }}/{{ demanda.data_solicitacao[0:4] }}</td>
+              <td>{{ demanda.setor }}</td><td>{{ demanda.status }}</td>
+              <td><span class="prioridade {% if demanda.prioridade == 'Alta' %}alta{% else %}normal{% endif %}">{{ demanda.prioridade }}</span></td>
+            </tr>{% else %}<tr><td class="vazio" colspan="6">Nenhuma demanda encontrada.</td></tr>{% endfor %}</tbody>
+          </table></div>
+        </div>
+      </section>
+    </div>
+    <footer>Desafio Técnico · Analista de Desenvolvimento Júnior</footer>
+  </div>
+</body>
+</html>
